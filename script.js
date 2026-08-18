@@ -248,7 +248,7 @@ function renderCover() {
       />
       <h1 class="cover-title">Манастир Лешје</h1>
       <div class="swipe-hint" aria-hidden="true">
-        <svg class="swipe-finger" viewBox="0 0 32 40" width="28" height="36">
+        <svg class="swipe-finger" viewBox="0 0 32 40" width="34" height="44">
           <path
             fill="currentColor"
             d="M20.2 2.4c-1.3 0-2.3 1-2.3 2.3v11.2c0 .3-.3.5-.6.4-.3-.1-.4-.4-.3-.6l2.4-6.3c.4-1.1-.2-2.3-1.3-2.7-.9-.3-1.9.1-2.4.9L12.4 14c-.2.3-.6.3-.8.1-.2-.2-.2-.5 0-.7l3.2-4.6c.7-1 .5-2.4-.5-3.1-.9-.6-2.1-.4-2.8.5L7.2 12.4c-2.4 3.3-3.7 7.3-3.7 11.4 0 7.1 5.4 12.8 12.1 12.8 5.6 0 10.2-4.6 10.2-10.3V8.6c0-3.4-2.5-6.2-5.6-6.2z"
@@ -474,7 +474,10 @@ document.addEventListener("keydown", (event) => {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    navigator.serviceWorker
+      .register("sw.js", { updateViaCache: "none" })
+      .then((registration) => registration.update())
+      .catch(() => {});
   });
 }
 

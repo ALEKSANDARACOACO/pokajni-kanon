@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokajni-kanon-v10";
+const CACHE_NAME = "pokajni-kanon-v11";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -35,8 +35,36 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+function isAppShell(request) {
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) {
+    return false;
+  }
+  const path = url.pathname;
+  return (
+    path.endsWith("/") ||
+    path.endsWith(".html") ||
+    path.endsWith(".js") ||
+    path.endsWith(".css") ||
+    path.endsWith("sw.js")
+  );
+}
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
+    return;
+  }
+
+  if (isAppShell(event.request)) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
     return;
   }
 
