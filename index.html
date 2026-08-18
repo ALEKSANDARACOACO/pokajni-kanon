@@ -6,6 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta name="theme-color" content="#1a1210" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Покајни канон" />
@@ -14,7 +15,39 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/icon-180.png" />
-    <link rel="stylesheet" href="style.css?v=11" />
+    <link rel="stylesheet" href="style.css?v=12" />
+    <script>
+      (function () {
+        var BUILD = "12";
+        if (!("serviceWorker" in navigator)) {
+          return;
+        }
+        var needsRefresh = localStorage.getItem("pokajni-build") !== BUILD;
+        var ready = Promise.resolve();
+        if (needsRefresh) {
+          ready = navigator.serviceWorker.getRegistrations().then(function (regs) {
+            return Promise.all(regs.map(function (reg) { return reg.unregister(); }));
+          }).then(function () {
+            if (!window.caches) {
+              return;
+            }
+            return caches.keys().then(function (keys) {
+              return Promise.all(keys.map(function (key) { return caches.delete(key); }));
+            });
+          });
+        }
+        ready.then(function () {
+          return navigator.serviceWorker.register("sw.js?v=" + BUILD, {
+            updateViaCache: "none",
+          });
+        }).then(function () {
+          if (needsRefresh) {
+            localStorage.setItem("pokajni-build", BUILD);
+            location.reload();
+          }
+        }).catch(function () {});
+      })();
+    </script>
   </head>
   <body>
     <div id="app" class="app">
@@ -29,7 +62,7 @@
         <button type="button" id="font-up" aria-label="Увећај слова">А+</button>
       </div>
     </div>
-    <script src="izvor.js?v=11"></script>
-    <script src="script.js?v=11"></script>
+    <script src="izvor.js?v=12"></script>
+    <script src="script.js?v=12"></script>
   </body>
 </html>

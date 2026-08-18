@@ -475,7 +475,7 @@ document.addEventListener("keydown", (event) => {
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("sw.js", { updateViaCache: "none" })
+      .register("sw.js?v=12", { updateViaCache: "none" })
       .then((registration) => registration.update())
       .catch(() => {});
   });

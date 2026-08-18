@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokajni-kanon-v11";
+const CACHE_NAME = "pokajni-kanon-v12";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -45,8 +45,7 @@ function isAppShell(request) {
     path.endsWith("/") ||
     path.endsWith(".html") ||
     path.endsWith(".js") ||
-    path.endsWith(".css") ||
-    path.endsWith("sw.js")
+    path.endsWith(".css")
   );
 }
 
@@ -57,7 +56,7 @@ self.addEventListener("fetch", (event) => {
 
   if (isAppShell(event.request)) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: "no-store" })
         .then((response) => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
