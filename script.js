@@ -247,6 +247,11 @@ function renderCover() {
         height="752"
       />
       <h1 class="cover-title">Манастир Лешје</h1>
+      <div class="swipe-hint" aria-hidden="true">
+        <span class="swipe-chevron swipe-chevron-left">‹</span>
+        <span class="swipe-track"></span>
+        <span class="swipe-chevron swipe-chevron-right">›</span>
+      </div>
     </figure>
   `;
 }
@@ -318,12 +323,70 @@ function renderPage() {
   saveState();
 }
 
+function getViewportScale() {
+  if (window.visualViewport && window.visualViewport.scale) {
+    return window.visualViewport.scale;
+  }
+  return 1;
+}
+
+function isZoomedView() {
+  return (
+    getViewportScale() > 1.05 ||
+    pageEl.scrollWidth > pageEl.clientWidth + 8
+  );
+}
+
+function captureReadAnchor() {
+  const bounds = pageEl.getBoundingClientRect();
+  const x = bounds.left + Math.min(28, bounds.width * 0.12);
+  const y = bounds.top + Math.min(24, bounds.height * 0.08);
+  let node = document.elementFromPoint(x, y);
+
+  if (!node || !pageEl.contains(node)) {
+    const max = Math.max(1, pageEl.scrollHeight - pageEl.clientHeight);
+    return { kind: "ratio", ratio: pageEl.scrollTop / max };
+  }
+
+  while (
+    node.parentElement &&
+    node.parentElement !== pageEl &&
+    !node.matches("p, h1, li, .kicker, .page-title, .rubric, .naziv-text p, .cover-title")
+  ) {
+    node = node.parentElement;
+  }
+
+  return {
+    kind: "node",
+    node,
+    offset: node.getBoundingClientRect().top - bounds.top,
+  };
+}
+
+function restoreReadAnchor(anchor) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (anchor.kind === "node" && anchor.node && pageEl.contains(anchor.node)) {
+        const top = pageEl.getBoundingClientRect().top;
+        pageEl.scrollTop += anchor.node.getBoundingClientRect().top - top - anchor.offset;
+        return;
+      }
+      if (anchor.kind === "ratio") {
+        const max = Math.max(1, pageEl.scrollHeight - pageEl.clientHeight);
+        pageEl.scrollTop = anchor.ratio * max;
+      }
+    });
+  });
+}
+
 function changeFont(direction) {
+  const anchor = captureReadAnchor();
   fontScale = Math.min(
     FONT_MAX,
     Math.max(FONT_MIN, Number((fontScale + direction * FONT_STEP).toFixed(2)))
   );
   applyFontScale();
+  restoreReadAnchor(anchor);
   saveState();
   showChrome();
 }
@@ -363,6 +426,10 @@ function onTouchEnd(event) {
 
   if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.4) {
     showChrome();
+    return;
+  }
+
+  if (isZoomedView()) {
     return;
   }
 
