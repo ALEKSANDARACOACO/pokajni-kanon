@@ -1,5 +1,10 @@
 const STORAGE_FONT = "pokajni-font-scale";
 const STORAGE_PAGE = "pokajni-page-index";
+const STORAGE_OWNER = "pokajni-vlasnik";
+const STORAGE_VIEWED = "pokajni-pregled-sesija";
+const COUNTER_NS = "aleksandaracoaco-pokajni-kanon";
+const COUNTER_VIEWS = "pregledi";
+const COUNTER_DOWNLOADS = "preuzimanja";
 
 const FONT_MIN = 0.85;
 const FONT_MAX = 1.8;
@@ -195,6 +200,10 @@ const fontDown = document.getElementById("font-down");
 const fontUp = document.getElementById("font-up");
 const pageIndicator = document.getElementById("page-indicator");
 const contentsBtn = document.getElementById("contents-btn");
+const downloadBtn = document.getElementById("download-btn");
+const statsEl = document.getElementById("stats");
+const statViews = document.getElementById("stat-views");
+const statDownloads = document.getElementById("stat-downloads");
 
 let pageIndex = 0;
 let fontScale = 1;
@@ -248,11 +257,12 @@ function renderCover() {
       />
       <h1 class="cover-title">Манастир Лешје</h1>
       <div class="swipe-hint" aria-hidden="true">
-        <svg class="swipe-finger" viewBox="0 0 32 40" width="34" height="44">
+        <svg class="swipe-finger" viewBox="0 0 14 40" width="12" height="34">
           <path
             fill="currentColor"
-            d="M20.2 2.4c-1.3 0-2.3 1-2.3 2.3v11.2c0 .3-.3.5-.6.4-.3-.1-.4-.4-.3-.6l2.4-6.3c.4-1.1-.2-2.3-1.3-2.7-.9-.3-1.9.1-2.4.9L12.4 14c-.2.3-.6.3-.8.1-.2-.2-.2-.5 0-.7l3.2-4.6c.7-1 .5-2.4-.5-3.1-.9-.6-2.1-.4-2.8.5L7.2 12.4c-2.4 3.3-3.7 7.3-3.7 11.4 0 7.1 5.4 12.8 12.1 12.8 5.6 0 10.2-4.6 10.2-10.3V8.6c0-3.4-2.5-6.2-5.6-6.2z"
+            d="M7 1.2c1.7 0 3 1.3 3 3v22.4c1.4.4 2.4 1.7 2.4 3.2 0 1.8-1.5 3.3-3.4 3.3H5c-1.9 0-3.4-1.5-3.4-3.3 0-1.5 1-2.8 2.4-3.2V4.2c0-1.7 1.3-3 3-3z"
           />
+          <ellipse cx="7" cy="4.4" rx="1.55" ry="2.05" fill="rgba(255,255,255,0.28)" />
         </svg>
       </div>
     </figure>
@@ -443,8 +453,88 @@ function onTouchEnd(event) {
   }
 }
 
+function isOwnerView() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("ja") === "1") {
+    sessionStorage.setItem(STORAGE_OWNER, "1");
+    return true;
+  }
+  return sessionStorage.getItem(STORAGE_OWNER) === "1";
+}
+
+async function counterRequest(action, key) {
+  const response = await fetch(
+    `https://abacus.jasoncameron.dev/${action}/${COUNTER_NS}/${key}`
+  );
+  if (response.status === 404) {
+    return 0;
+  }
+  if (!response.ok) {
+    throw new Error("counter");
+  }
+  const data = await response.json();
+  return Number(data.value) || 0;
+}
+
+function setStat(el, value) {
+  if (el) {
+    el.textContent = String(value);
+  }
+}
+
+async function refreshOwnerStats() {
+  if (!isOwnerView() || !statsEl) {
+    return;
+  }
+  statsEl.hidden = false;
+  try {
+    const [views, downloads] = await Promise.all([
+      counterRequest("get", COUNTER_VIEWS),
+      counterRequest("get", COUNTER_DOWNLOADS),
+    ]);
+    setStat(statViews, views);
+    setStat(statDownloads, downloads);
+  } catch (_error) {}
+}
+
+async function countView() {
+  if (sessionStorage.getItem(STORAGE_VIEWED) === "1") {
+    await refreshOwnerStats();
+    return;
+  }
+  sessionStorage.setItem(STORAGE_VIEWED, "1");
+  try {
+    const views = await counterRequest("hit", COUNTER_VIEWS);
+    setStat(statViews, views);
+  } catch (_error) {}
+  await refreshOwnerStats();
+}
+
+function downloadCanon() {
+  const text = typeof IZVOR === "string" ? IZVOR : "";
+  const blob = new Blob(["\uFEFF" + text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "Покајни канон.txt";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  counterRequest("hit", COUNTER_DOWNLOADS)
+    .then((downloads) => {
+      setStat(statDownloads, downloads);
+    })
+    .catch(() => {});
+}
+
 fontDown.addEventListener("click", () => changeFont(-1));
 fontUp.addEventListener("click", () => changeFont(1));
+downloadBtn.addEventListener("click", () => {
+  downloadCanon();
+  showChrome();
+});
 contentsBtn.addEventListener("click", () => {
   goTo(TOC_INDEX);
   showChrome();
@@ -472,16 +562,8 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("sw.js?v=12", { updateViaCache: "none" })
-      .then((registration) => registration.update())
-      .catch(() => {});
-  });
-}
-
 loadState();
 applyFontScale();
 renderPage();
 showChrome();
+countView();
