@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokajni-kanon-v15";
+const CACHE_NAME = "pokajni-kanon-v16";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -9,6 +9,7 @@ const APP_FILES = [
   "./pokrov-cover.jpg",
   "./manastir lesje 2.jpg",
   "./sveta tri jerarha.jpg",
+  "./swipe-hint.png",
   "./icons/icon.svg",
   "./icons/icon-180.png",
   "./icons/icon-192.png",

@@ -116,8 +116,9 @@ body {
 }
 
 .swipe-finger {
-  color: rgba(244, 230, 184, 0.88);
   display: block;
+  width: 5.8rem;
+  height: auto;
   animation: swipe-left-hint 3.4s ease-in-out infinite;
 }
 

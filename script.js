@@ -260,13 +260,7 @@ function renderCover() {
       />
       <h1 class="cover-title">Манастир Лешје</h1>
       <div class="swipe-hint" aria-hidden="true">
-        <svg class="swipe-finger" viewBox="0 0 48 96" width="44" height="88">
-          <path
-            fill="currentColor"
-            d="M24 4c9.4 0 17 7.2 17 16.1V62c4.2 1.4 7.2 5.4 7.2 10.1 0 5.9-4.8 10.7-10.7 10.7H16.5C10.6 82.8 5.8 78 5.8 72.1c0-4.7 3-8.7 7.2-10.1V20.1C13 11.2 20.6 4 24 4z"
-          />
-          <ellipse cx="24" cy="16" rx="8" ry="11" fill="rgba(255,255,255,0.22)" />
-        </svg>
+        <img class="swipe-finger" src="swipe-hint.png" alt="" width="96" height="96" />
       </div>
     </figure>
   `;
