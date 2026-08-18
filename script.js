@@ -200,7 +200,10 @@ const fontDown = document.getElementById("font-down");
 const fontUp = document.getElementById("font-up");
 const pageIndicator = document.getElementById("page-indicator");
 const contentsBtn = document.getElementById("contents-btn");
-const downloadBtn = document.getElementById("download-btn");
+const installBtn = document.getElementById("install-btn");
+const installHelp = document.getElementById("install-help");
+const installHelpText = document.getElementById("install-help-text");
+const installHelpClose = document.getElementById("install-help-close");
 const statsEl = document.getElementById("stats");
 const statViews = document.getElementById("stat-views");
 const statDownloads = document.getElementById("stat-downloads");
@@ -257,12 +260,12 @@ function renderCover() {
       />
       <h1 class="cover-title">Манастир Лешје</h1>
       <div class="swipe-hint" aria-hidden="true">
-        <svg class="swipe-finger" viewBox="0 0 14 40" width="12" height="34">
+        <svg class="swipe-finger" viewBox="0 0 48 96" width="44" height="88">
           <path
             fill="currentColor"
-            d="M7 1.2c1.7 0 3 1.3 3 3v22.4c1.4.4 2.4 1.7 2.4 3.2 0 1.8-1.5 3.3-3.4 3.3H5c-1.9 0-3.4-1.5-3.4-3.3 0-1.5 1-2.8 2.4-3.2V4.2c0-1.7 1.3-3 3-3z"
+            d="M24 4c9.4 0 17 7.2 17 16.1V62c4.2 1.4 7.2 5.4 7.2 10.1 0 5.9-4.8 10.7-10.7 10.7H16.5C10.6 82.8 5.8 78 5.8 72.1c0-4.7 3-8.7 7.2-10.1V20.1C13 11.2 20.6 4 24 4z"
           />
-          <ellipse cx="7" cy="4.4" rx="1.55" ry="2.05" fill="rgba(255,255,255,0.28)" />
+          <ellipse cx="24" cy="16" rx="8" ry="11" fill="rgba(255,255,255,0.22)" />
         </svg>
       </div>
     </figure>
@@ -510,18 +513,13 @@ async function countView() {
   await refreshOwnerStats();
 }
 
-function downloadCanon() {
-  const text = typeof IZVOR === "string" ? IZVOR : "";
-  const blob = new Blob(["\uFEFF" + text], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "Покајни канон.txt";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+let countedInstall = false;
 
+function countInstall() {
+  if (countedInstall) {
+    return;
+  }
+  countedInstall = true;
   counterRequest("hit", COUNTER_DOWNLOADS)
     .then((downloads) => {
       setStat(statDownloads, downloads);
@@ -529,11 +527,82 @@ function downloadCanon() {
     .catch(() => {});
 }
 
+function isStandaloneApp() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+function isIosDevice() {
+  return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+}
+
+let deferredInstall = null;
+
+function showInstallButton() {
+  if (!installBtn || isStandaloneApp()) {
+    if (installBtn) {
+      installBtn.hidden = true;
+    }
+    return;
+  }
+  installBtn.hidden = false;
+}
+
+function hideInstallHelp() {
+  if (installHelp) {
+    installHelp.hidden = true;
+  }
+}
+
+function showInstallHelp() {
+  if (!installHelp || !installHelpText) {
+    return;
+  }
+  installHelpText.textContent = isIosDevice()
+    ? "На iPhone-у: Подели → Додај на почетни екран."
+    : "Отвори мени прегледача и изабери Инсталирај апликацију.";
+  installHelp.hidden = false;
+}
+
+async function installApp() {
+  hideInstallHelp();
+  if (deferredInstall) {
+    deferredInstall.prompt();
+    const choice = await deferredInstall.userChoice;
+    deferredInstall = null;
+    if (choice && choice.outcome === "accepted") {
+      countInstall();
+      installBtn.hidden = true;
+    }
+    return;
+  }
+  showInstallHelp();
+}
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstall = event;
+  showInstallButton();
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstall = null;
+  hideInstallHelp();
+  if (installBtn) {
+    installBtn.hidden = true;
+  }
+  countInstall();
+});
+
 fontDown.addEventListener("click", () => changeFont(-1));
 fontUp.addEventListener("click", () => changeFont(1));
-downloadBtn.addEventListener("click", () => {
-  downloadCanon();
-  showChrome();
+installBtn.addEventListener("click", () => {
+  installApp();
+});
+installHelpClose.addEventListener("click", () => {
+  hideInstallHelp();
 });
 contentsBtn.addEventListener("click", () => {
   goTo(TOC_INDEX);
@@ -566,4 +635,5 @@ loadState();
 applyFontScale();
 renderPage();
 showChrome();
+showInstallButton();
 countView();
