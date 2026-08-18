@@ -535,13 +535,16 @@ function isIosDevice() {
 let deferredInstall = null;
 
 function showInstallButton() {
-  if (!installBtn || isStandaloneApp()) {
-    if (installBtn) {
-      installBtn.hidden = true;
-    }
+  if (!installBtn) {
+    return;
+  }
+  if (isStandaloneApp()) {
+    installBtn.hidden = true;
+    installBtn.classList.add("is-hidden");
     return;
   }
   installBtn.hidden = false;
+  installBtn.classList.remove("is-hidden");
 }
 
 function hideInstallHelp() {
@@ -568,7 +571,10 @@ async function installApp() {
     deferredInstall = null;
     if (choice && choice.outcome === "accepted") {
       countInstall();
-      installBtn.hidden = true;
+      if (installBtn) {
+        installBtn.hidden = true;
+        installBtn.classList.add("is-hidden");
+      }
     }
     return;
   }
@@ -586,6 +592,7 @@ window.addEventListener("appinstalled", () => {
   hideInstallHelp();
   if (installBtn) {
     installBtn.hidden = true;
+    installBtn.classList.add("is-hidden");
   }
   countInstall();
 });

@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokajni-kanon-v18";
+const CACHE_NAME = "pokajni-kanon-v19";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -10,9 +10,10 @@ const APP_FILES = [
   "./manastir lesje 2.jpg",
   "./sveta tri jerarha.jpg",
   "./swipe-hint.png",
-  "./icons/icon-180.png",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
+  "./icons/nika-180.png",
+  "./icons/nika-192.png",
+  "./icons/nika-512.png",
+  "./icons/nika-512-mask.png",
 ];
 
 self.addEventListener("install", (event) => {

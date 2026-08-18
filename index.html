@@ -13,12 +13,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>ПОКАЈНИ КАНОН ГОСПОДУ НАШЕМ ИСУСУ ХРИСТУ</title>
     <link rel="manifest" href="manifest.json" />
-    <link rel="icon" href="icons/icon-192.png?v=18" type="image/png" sizes="192x192" />
-    <link rel="apple-touch-icon" href="icons/icon-180.png?v=18" />
-    <link rel="stylesheet" href="style.css?v=18" />
+    <link rel="icon" href="icons/nika-192.png?v=19" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="icons/nika-180.png?v=19" />
+    <link rel="stylesheet" href="style.css?v=19" />
     <script>
       (function () {
-        var BUILD = "18";
+        var BUILD = "19";
         if (!("serviceWorker" in navigator)) {
           return;
         }
@@ -60,21 +60,6 @@
         · Преузимања: <span id="stat-downloads">—</span>
       </div>
 
-      <button type="button" id="install-btn" class="install-btn" hidden>
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-          <path
-            fill="currentColor"
-            d="M12 3a1.2 1.2 0 0 1 1.2 1.2v8.3l2.6-2.6a1.2 1.2 0 1 1 1.7 1.7l-4.7 4.7a1.2 1.2 0 0 1-1.7 0l-4.7-4.7a1.2 1.2 0 1 1 1.7-1.7l2.6 2.6V4.2A1.2 1.2 0 0 1 12 3zm-8 14.2c0-.7.5-1.2 1.2-1.2h13.6c.7 0 1.2.5 1.2 1.2V20c0 .7-.5 1.2-1.2 1.2H5.2A1.2 1.2 0 0 1 4 20v-2.8z"
-          />
-        </svg>
-        <span>Инсталирај</span>
-      </button>
-
-      <div id="install-help" class="install-help" hidden>
-        <p id="install-help-text"></p>
-        <button type="button" id="install-help-close">Затвори</button>
-      </div>
-
       <div class="chrome" id="chrome">
         <button type="button" id="contents-btn">Садржај</button>
         <button type="button" id="font-down" aria-label="Смањи слова">А−</button>
@@ -82,7 +67,18 @@
         <button type="button" id="font-up" aria-label="Увећај слова">А+</button>
       </div>
     </div>
-    <script src="izvor.js?v=18"></script>
-    <script src="script.js?v=18"></script>
+
+    <button type="button" id="install-btn" class="install-btn" aria-label="Инсталирај апликацију">
+      <img src="icons/nika-192.png?v=19" alt="" width="28" height="28" />
+      <span>Инсталирај</span>
+    </button>
+
+    <div id="install-help" class="install-help" hidden>
+      <p id="install-help-text"></p>
+      <button type="button" id="install-help-close">Затвори</button>
+    </div>
+
+    <script src="izvor.js?v=19"></script>
+    <script src="script.js?v=19"></script>
   </body>
 </html>
