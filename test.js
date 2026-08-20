@@ -104,13 +104,17 @@
 
   // --- распоред PAGES ---
   ok("насловна је прва", PAGES[0].kind === "cover" && PAGES[0].title === "Манастир Лешје");
-  ok("садржај је друга", PAGES[1].kind === "toc");
-  ok("TOC_INDEX је 1", TOC_INDEX === 1);
+  ok("назив је одмах после насловне", PAGES[1].kind === "naziv");
+  ok("TOC_INDEX је на крају", TOC_INDEX === PAGES.length - 1);
 
   const predgovorPos = PAGES.findIndex((page) => page.id === "predgovor");
   const nazivPos = PAGES.findIndex((page) => page.kind === "naziv");
-  ok("Предговор је одмах после садржаја", predgovorPos === 2);
-  ok("назив је после Предговора", nazivPos === predgovorPos + 1);
+  ok("назив је друга страна", nazivPos === 1);
+  ok("Предговор је одмах после назива", predgovorPos === nazivPos + 1);
+  ok(
+    "после Предговора иде Почетак",
+    PAGES[predgovorPos + 1] && PAGES[predgovorPos + 1].id === "pocetak"
+  );
   ok("назив има Три Јерарха у HTML-у", /sveta tri jerarha/.test(renderNaziv()));
 
   const pocetak = pageById("pocetak");
@@ -148,7 +152,7 @@
   goTo(TOC_INDEX);
   ok("одлазак на садржај", pageIndex === TOC_INDEX && document.getElementById("app").dataset.pageKind === "toc");
   ok("Садржај дугме је скривено на садржају", contentsBtn.hidden === true);
-  ok("индикатор показује број стране", pageIndicator.textContent === "2 / " + PAGES.length);
+  ok("индикатор показује број стране", pageIndicator.textContent === TOC_INDEX + 1 + " / " + PAGES.length);
 
   goTo(0);
   ok("Садржај дугме је видљиво ван садржаја", contentsBtn.hidden === false);

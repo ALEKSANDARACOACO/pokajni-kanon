@@ -169,26 +169,19 @@ const NAZIV_PAGE = {
   title: "Покајни канон",
 };
 
-const predgovorIndex = TEXT_PAGES.findIndex((page) => page.id === "predgovor");
-const orderedTextPages = [...TEXT_PAGES];
-if (predgovorIndex >= 0) {
-  orderedTextPages.splice(predgovorIndex + 1, 0, NAZIV_PAGE);
-} else {
-  orderedTextPages.unshift(NAZIV_PAGE);
-}
-
 const PAGES = [
   {
     id: "naslovna",
     kind: "cover",
     title: "Манастир Лешје",
   },
+  NAZIV_PAGE,
+  ...TEXT_PAGES,
   {
     id: "sadrzaj",
     kind: "toc",
     title: "Садржај",
   },
-  ...orderedTextPages,
 ];
 
 const TOC_INDEX = PAGES.findIndex((page) => page.kind === "toc");
