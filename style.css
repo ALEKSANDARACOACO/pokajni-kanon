@@ -290,8 +290,9 @@ body {
 .install-btn {
   position: fixed;
   top: auto;
-  right: 0.75rem;
-  bottom: calc(var(--safe-bottom) + 4.6rem);
+  left: 0.85rem;
+  right: auto;
+  bottom: calc(var(--safe-bottom) + 0.9rem);
   z-index: 20;
   display: flex;
   align-items: center;
