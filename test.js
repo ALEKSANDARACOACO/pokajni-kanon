@@ -546,6 +546,13 @@
       );
       extraOk("манифест је sr-Cyrl", manifest.lang === "sr-Cyrl");
       extraOk("PWA је standalone", manifest.display === "standalone");
+      extraOk(
+        "после инсталације нема адресне траке",
+        Array.isArray(manifest.display_override) &&
+          manifest.display_override[0] === "standalone" &&
+          manifest.display_override.indexOf("minimal-ui") === -1 &&
+          manifest.display_override.indexOf("browser") === -1
+      );
       extraOk("PWA има стабилан id", manifest.id === "/pokajni-kanon/");
       extraOk("PWA није Play Store апликација", manifest.prefer_related_applications === false);
       extraOk("орјентација није закључана (any)", manifest.orientation === "any");

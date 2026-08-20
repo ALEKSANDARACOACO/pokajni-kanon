@@ -569,8 +569,17 @@ function showInstallHelp() {
     return;
   }
   installHelpText.textContent = isIosDevice()
-    ? "На iPhone-у: Подели → Додај на почетни екран."
-    : "Отвори мени прегледача и изабери Инсталирај апликацију. Не бирај Додај на почетни екран — то је само пречица ка страници.";
+    ? "На iPhone-у: Подели → Додај на почетни екран. Потом отвори икону — без адресне траке."
+    : "Отвори мени прегледача и изабери Инсталирај апликацију. Потом отвори икону на почетном екрану — тамо нема адресне траке.";
+  installHelp.hidden = false;
+}
+
+function showOpenedFromHomeScreenHint() {
+  if (!installHelp || !installHelpText) {
+    return;
+  }
+  installHelpText.textContent =
+    "Отвори икону Покајни канон на почетном екрану. Тамо нема адресне траке.";
   installHelp.hidden = false;
 }
 
@@ -586,6 +595,7 @@ async function installApp() {
         installBtn.hidden = true;
         installBtn.classList.add("is-hidden");
       }
+      showOpenedFromHomeScreenHint();
     }
     return;
   }
@@ -600,12 +610,12 @@ window.addEventListener("beforeinstallprompt", (event) => {
 
 window.addEventListener("appinstalled", () => {
   deferredInstall = null;
-  hideInstallHelp();
   if (installBtn) {
     installBtn.hidden = true;
     installBtn.classList.add("is-hidden");
   }
   countInstall();
+  showOpenedFromHomeScreenHint();
 });
 
 fontDown.addEventListener("click", () => changeFont(-1));
