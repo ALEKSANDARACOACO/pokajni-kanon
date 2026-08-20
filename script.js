@@ -331,6 +331,7 @@ function renderPage() {
   pageIndicator.textContent = `${pageIndex + 1} / ${PAGES.length}`;
   contentsBtn.hidden = page.kind === "toc";
   saveState();
+  showInstallButton();
 }
 
 function getViewportScale() {
@@ -538,9 +539,11 @@ function showInstallButton() {
   if (!installBtn) {
     return;
   }
-  if (isStandaloneApp()) {
+  const onCover = PAGES[pageIndex] && PAGES[pageIndex].kind === "cover";
+  if (!onCover || isStandaloneApp()) {
     installBtn.hidden = true;
     installBtn.classList.add("is-hidden");
+    hideInstallHelp();
     return;
   }
   installBtn.hidden = false;
