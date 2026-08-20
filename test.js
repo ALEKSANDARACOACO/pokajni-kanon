@@ -298,6 +298,25 @@
   );
   hideInstallHelp();
 
+  ok(
+    "Redmi Note 11 Pro има системски прогрес инсталације",
+    isXiaomiFamily(
+      "Mozilla/5.0 (Linux; Android 13; 2201116TG) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+      "2201116TG"
+    )
+  );
+  ok(
+    "Redmi у називу је Xiaomi породица",
+    isXiaomiFamily("Mozilla/5.0 (Linux; Android 13; Redmi Note 11 Pro) AppleWebKit/537.36")
+  );
+  ok(
+    "Samsung S24 нема тај системски прогрес",
+    !isXiaomiFamily(
+      "Mozilla/5.0 (Linux; Android 14; SM-S921B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+      "SM-S921B"
+    )
+  );
+
   // --- бројач само за власника ---
   sessionStorage.removeItem(STORAGE_OWNER);
   const params = new URLSearchParams(window.location.search);

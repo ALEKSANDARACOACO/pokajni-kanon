@@ -542,6 +542,35 @@ function isIosDevice() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 }
 
+function isXiaomiFamily(ua, model) {
+  const agent = ua == null ? window.navigator.userAgent : ua;
+  const blob = `${agent || ""} ${model || ""}`;
+  if (/Xiaomi|XiaoMi|Redmi|POCO|MiuiBrowser|MIUI/i.test(blob)) {
+    return true;
+  }
+  const uaCode = /\b(\d{6,8}[A-Z]{2,4})\b/.exec(agent || "");
+  const code = String(model || (uaCode && uaCode[1]) || "").trim();
+  return /^\d{5,8}[A-Z0-9]{2,6}$/i.test(code) && !/^SM-/i.test(code);
+}
+
+async function hasNativeInstallProgress() {
+  if (isXiaomiFamily()) {
+    return true;
+  }
+  if (
+    navigator.userAgentData &&
+    typeof navigator.userAgentData.getHighEntropyValues === "function"
+  ) {
+    try {
+      const info = await navigator.userAgentData.getHighEntropyValues(["model"]);
+      if (isXiaomiFamily(navigator.userAgent, info.model)) {
+        return true;
+      }
+    } catch (_error) {}
+  }
+  return false;
+}
+
 let deferredInstall = null;
 
 function showInstallButton() {
@@ -619,7 +648,11 @@ window.addEventListener("appinstalled", () => {
     installBtn.classList.add("is-hidden");
   }
   countInstall();
-  showInstallComplete();
+  hasNativeInstallProgress().then((nativeProgress) => {
+    if (!nativeProgress) {
+      showInstallComplete();
+    }
+  });
 });
 
 fontDown.addEventListener("click", () => changeFont(-1));
