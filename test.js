@@ -264,6 +264,7 @@
   ok("Преузми је на насловној", installBtn.hidden === false && !installBtn.classList.contains("is-hidden"));
   ok("натпис је Преузми", installBtn.textContent.replace(/\s+/g, " ").trim().indexOf("Преузми") !== -1);
   ok("Преузми има икону преузимања", !!installBtn.querySelector(".download-icon"));
+  ok("Преузми нема икону NIKA", !installBtn.querySelector("img"));
 
   goTo(TOC_INDEX);
   showInstallButton();
