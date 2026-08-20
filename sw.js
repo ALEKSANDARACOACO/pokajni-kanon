@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokajni-kanon-v26";
+const CACHE_NAME = "pokajni-kanon-v27";
 const APP_FILES = [
   "./",
   "./index.html",

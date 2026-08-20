@@ -545,7 +545,10 @@
         manifest.icons.some((icon) => icon.src.indexOf("nika-192") !== -1)
       );
       extraOk("манифест је sr-Cyrl", manifest.lang === "sr-Cyrl");
-      extraOk("PWA је standalone", manifest.display === "standalone");
+      extraOk(
+        "инсталациони назив није свим великим",
+        manifest.name === "Покајни канон Господу нашем Исусу Христу"
+      );
       extraOk(
         "после инсталације нема адресне траке",
         Array.isArray(manifest.display_override) &&
