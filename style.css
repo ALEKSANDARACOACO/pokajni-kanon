@@ -430,6 +430,14 @@ body {
   border-radius: 0.35rem;
 }
 
+.install-btn .download-icon {
+  display: block;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+  color: #f4e6b8;
+}
+
 .install-btn.is-hidden,
 .install-btn[hidden] {
   display: none;
