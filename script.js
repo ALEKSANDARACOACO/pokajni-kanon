@@ -340,10 +340,7 @@ function getViewportScale() {
 }
 
 function isZoomedView() {
-  return (
-    getViewportScale() > 1.05 ||
-    pageEl.scrollWidth > pageEl.clientWidth + 8
-  );
+  return getViewportScale() > 1.05;
 }
 
 function captureReadAnchor() {

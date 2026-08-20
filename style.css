@@ -345,10 +345,18 @@ body {
   font-size: calc(1.05rem * var(--type-scale));
   line-height: 1.6;
   max-width: 38rem;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
 }
 
 .prose p {
   margin: 0 0 0.95em;
+}
+
+.page-title,
+.kicker {
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
 }
 
 .rubric .label {

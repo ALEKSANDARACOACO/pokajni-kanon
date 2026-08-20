@@ -211,6 +211,32 @@
   changeFont(1);
   ok("слово не иде изнад максимума", fontScale === FONT_MAX);
 
+  const pesma6 = PAGES.findIndex((page) => page.id === "pesma-6");
+  ok("Песма 6 постоји", pesma6 > 0);
+  fontScale = 1;
+  applyFontScale();
+  for (let i = 0; i < 6; i += 1) {
+    changeFont(1);
+  }
+  ok("шест А+ даје 1.6", fontScale === 1.6);
+  goTo(pesma6);
+  ok(
+    "велико слово није pinch-zoom",
+    isZoomedView() === false,
+    "scale=" + getViewportScale() + " scroll=" + pageEl.scrollWidth + "x" + pageEl.clientWidth
+  );
+  const fromPesma6 = pageIndex;
+  fakeTouch("touchstart", 220, 300);
+  fakeTouch("touchend", 40, 305);
+  ok(
+    "Песма 6 при 6× А+ свайп улево листа даље",
+    pageIndex === fromPesma6 + 1,
+    "index=" + pageIndex + " from=" + fromPesma6
+  );
+  fontScale = 1;
+  applyFontScale();
+  goTo(0);
+
   fontScale = 1.3;
   saveState();
   ok(
@@ -286,6 +312,186 @@
     ok(name, condition, detail);
   }
 
+  function waitFrames(count) {
+    return new Promise((resolve) => {
+      function step() {
+        if (count <= 0) {
+          resolve();
+          return;
+        }
+        count -= 1;
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  function setFixtureKind(doc, kind) {
+    const app = doc.getElementById("app");
+    const chrome = doc.getElementById("chrome");
+    const install = doc.getElementById("install-btn");
+    const page = doc.getElementById("page");
+    app.dataset.pageKind = kind;
+    if (kind === "cover") {
+      page.className = "page page-cover";
+      chrome.classList.remove("is-visible");
+      install.hidden = false;
+      install.classList.remove("is-hidden");
+      return;
+    }
+    page.className = "page page-text";
+    chrome.classList.add("is-visible");
+    install.hidden = true;
+    install.classList.add("is-hidden");
+  }
+
+  function applySafeArea(doc, insets) {
+    const root = doc.documentElement;
+    const values = insets || [0, 0, 0, 0];
+    root.style.setProperty("--safe-left", values[0] + "px");
+    root.style.setProperty("--safe-top", values[1] + "px");
+    root.style.setProperty("--safe-right", values[2] + "px");
+    root.style.setProperty("--safe-bottom", values[3] + "px");
+  }
+
+  function boxProblems(box, width, height, name) {
+    const problems = [];
+    if (box.width < 8 || box.height < 8) {
+      problems.push(name + " се не види");
+    }
+    if (box.left < -2) {
+      problems.push(name + " лево од екрана");
+    }
+    if (box.top < -2) {
+      problems.push(name + " изнад екрана");
+    }
+    if (box.right > width + 2) {
+      problems.push(name + " десно од екрана");
+    }
+    if (box.bottom > height + 2) {
+      problems.push(name + " испод екрана");
+    }
+    return problems;
+  }
+
+  async function checkDeviceFrame(frame, device, orientation) {
+    const size = device[orientation];
+    const width = size[0];
+    const height = size[1];
+    const doc = frame.contentDocument;
+    const win = frame.contentWindow;
+    const label = device.title + " " + (orientation === "portrait" ? "усправно" : "водоравно");
+    const problems = [];
+
+    frame.style.width = width + "px";
+    frame.style.height = height + "px";
+    applySafeArea(
+      doc,
+      orientation === "portrait" ? device.safePortrait : device.safeLandscape
+    );
+    await waitFrames(2);
+
+    const landscapePhone = width >= height && height <= 540;
+    const stack = doc.querySelector(".cover-stack");
+    const title = doc.querySelector(".cover-title");
+    const chrome = doc.getElementById("chrome");
+    const install = doc.getElementById("install-btn");
+
+    setFixtureKind(doc, "cover");
+    await waitFrames(2);
+
+    const direction = win.getComputedStyle(stack).flexDirection;
+    if (landscapePhone && direction.indexOf("row") !== 0) {
+      problems.push("насловна није у реду");
+    }
+    if (!landscapePhone && direction.indexOf("column") !== 0) {
+      problems.push("насловна није у колони");
+    }
+    if (win.getComputedStyle(chrome).display !== "none") {
+      problems.push("А+ А− се види на насловној");
+    }
+    problems.push.apply(
+      problems,
+      boxProblems(install.getBoundingClientRect(), width, height, "Преузми")
+    );
+    if (!title || title.textContent.indexOf("Лешје") === -1) {
+      problems.push("нема наслова");
+    } else {
+      const titleBox = title.getBoundingClientRect();
+      if (titleBox.bottom < 0 || titleBox.top > height) {
+        problems.push("наслов ван екрана");
+      }
+    }
+
+    setFixtureKind(doc, "text");
+    await waitFrames(2);
+    if (win.getComputedStyle(chrome).display === "none") {
+      problems.push("нема А+ А− на тексту");
+    } else {
+      problems.push.apply(
+        problems,
+        boxProblems(chrome.getBoundingClientRect(), width, height, "А+ А−")
+      );
+    }
+    if (!install.hidden) {
+      problems.push("Преузми је остао ван насловне");
+    }
+
+    extraOk(label, problems.length === 0, problems.join("; "));
+  }
+
+  function runDeviceViewportTests() {
+    extraOk(
+      "Chrome DevTools уређаји су учитани",
+      Array.isArray(CHROME_DEVTOOLS_DEVICES) && CHROME_DEVTOOLS_DEVICES.length >= 40
+    );
+    extraOk(
+      "S24 је у матрици уређаја",
+      CHROME_DEVTOOLS_DEVICES.some((device) => device.title === "Samsung Galaxy S24")
+    );
+
+    return new Promise((resolve) => {
+      const frame = document.createElement("iframe");
+      frame.id = "device-frame";
+      frame.setAttribute("scrolling", "no");
+      document.body.appendChild(frame);
+      frame.onload = function () {
+        const seen = {};
+        const jobs = [];
+        CHROME_DEVTOOLS_DEVICES.forEach((device) => {
+          ["portrait", "landscape"].forEach((orientation) => {
+            const size = device[orientation];
+            const key = device.title + ":" + size[0] + "x" + size[1];
+            if (seen[key]) {
+              return;
+            }
+            seen[key] = true;
+            jobs.push({ device, orientation });
+          });
+        });
+
+        (async function () {
+          try {
+            extraOk("број DevTools положаја", jobs.length >= 80, String(jobs.length));
+            for (let i = 0; i < jobs.length; i += 1) {
+              await checkDeviceFrame(frame, jobs[i].device, jobs[i].orientation);
+            }
+          } catch (error) {
+            extraOk("DevTools iframe тестови", false, String(error));
+          }
+          frame.remove();
+          resolve();
+        })();
+      };
+      frame.onerror = function () {
+        extraOk("device-fixture.html се учитава", false);
+        frame.remove();
+        resolve();
+      };
+      frame.src = "device-fixture.html";
+    });
+  }
+
   function finish() {
     const lines = [
       "ТЕСТОВИ ПОКАЈНОГ КАНОНА",
@@ -308,7 +514,7 @@
     lines.push("5. А+ на Припеву: поглед остаје на истом месту.");
     lines.push("6. Офлајн после инсталације: канон се и даље отвара.");
     lines.push("7. Икона IC XC NIKA на почетном екрану после поновне инсталације.");
-    lines.push("8. Android (Chrome) и iPhone (Safari): portrait и landscape.");
+    lines.push("8. Android (Chrome) и iPhone (Safari): portrait и landscape — аутоматски DevTools уређаји.");
     lines.push("9. Landscape: насловна (икона лево, наслов десно), текст се чита, Преузми и хром нису испод notch-а.");
     lines.push("10. Инсталирана икона ротира; није закључана у portrait.");
     lines.push("11. iPhone: Подели → Додај на почетни екран; после тога landscape и даље ради.");
@@ -350,7 +556,7 @@
       extraOk("CSS има landscape распоред", css.indexOf("orientation: landscape") !== -1);
       extraOk("CSS има safe-left/right", css.indexOf("--safe-left") !== -1 && css.indexOf("--safe-right") !== -1);
       extraOk("скрипта не закључава екран", script.indexOf("orientation.lock") === -1);
-      finish();
+      return runDeviceViewportTests().then(finish);
     })
     .catch((error) => {
       extraOk(
