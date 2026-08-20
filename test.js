@@ -251,6 +251,15 @@
   const style = window.getComputedStyle(installBtn);
   ok("Преузми је доле лево", parseFloat(style.left) >= 0 && parseFloat(style.left) < 48);
 
+  showChrome();
+  ok("на насловној нема А+ А− траке", !chromeEl.classList.contains("is-visible"));
+
+  goTo(predgovorPos);
+  showChrome();
+  ok("ван насловне А+ А− трака се показује", chromeEl.classList.contains("is-visible"));
+  hideChrome();
+  goTo(0);
+
   installApp();
   ok("без системског промпта отвара упутство", installHelp.hidden === false);
   hideInstallHelp();
@@ -331,6 +340,8 @@
       );
       extraOk("манифест је sr-Cyrl", manifest.lang === "sr-Cyrl");
       extraOk("PWA је standalone", manifest.display === "standalone");
+      extraOk("PWA има стабилан id", manifest.id === "/pokajni-kanon/");
+      extraOk("PWA није Play Store апликација", manifest.prefer_related_applications === false);
       extraOk("орјентација није закључана (any)", manifest.orientation === "any");
       extraOk("viewport-fit=cover за notch", html.indexOf("viewport-fit=cover") !== -1);
       extraOk("viewport дозвољава pinch-zoom", html.indexOf("user-scalable=no") === -1);

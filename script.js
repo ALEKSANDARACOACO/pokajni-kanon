@@ -325,6 +325,9 @@ function renderPage() {
   pageEl.scrollTop = 0;
   pageIndicator.textContent = `${pageIndex + 1} / ${PAGES.length}`;
   contentsBtn.hidden = page.kind === "toc";
+  if (page.kind === "cover") {
+    hideChrome();
+  }
   saveState();
   showInstallButton();
 }
@@ -405,7 +408,20 @@ function goTo(index) {
   renderPage();
 }
 
+function isCoverPage() {
+  return PAGES[pageIndex] && PAGES[pageIndex].kind === "cover";
+}
+
+function hideChrome() {
+  chromeEl.classList.remove("is-visible");
+  window.clearTimeout(chromeTimer);
+}
+
 function showChrome() {
+  if (isCoverPage()) {
+    hideChrome();
+    return;
+  }
   chromeEl.classList.add("is-visible");
   window.clearTimeout(chromeTimer);
   chromeTimer = window.setTimeout(() => {
@@ -557,7 +573,7 @@ function showInstallHelp() {
   }
   installHelpText.textContent = isIosDevice()
     ? "На iPhone-у: Подели → Додај на почетни екран."
-    : "Отвори мени прегледача и изабери Инсталирај апликацију.";
+    : "Отвори мени прегледача и изабери Инсталирај апликацију. Не бирај Додај на почетни екран — то је само пречица ка страници.";
   installHelp.hidden = false;
 }
 

@@ -269,6 +269,12 @@ body {
   height: auto;
 }
 
+.app[data-page-kind="cover"] .chrome {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .chrome {
   position: fixed;
   left: 50%;
