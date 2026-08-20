@@ -291,6 +291,13 @@
   hideInstallHelp();
   ok("упутство се затвара", installHelp.hidden === true);
 
+  showInstallComplete();
+  ok(
+    "кад је инсталација готова корисник добија потврду",
+    installHelp.hidden === false && installHelpText.textContent === "Инсталација је готова."
+  );
+  hideInstallHelp();
+
   // --- бројач само за власника ---
   sessionStorage.removeItem(STORAGE_OWNER);
   const params = new URLSearchParams(window.location.search);

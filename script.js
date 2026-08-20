@@ -204,6 +204,7 @@ const statDownloads = document.getElementById("stat-downloads");
 let pageIndex = 0;
 let fontScale = 1;
 let chromeTimer = 0;
+let installHelpTimer = 0;
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -562,6 +563,7 @@ function hideInstallHelp() {
   if (installHelp) {
     installHelp.hidden = true;
   }
+  window.clearTimeout(installHelpTimer);
 }
 
 function showInstallHelp() {
@@ -572,6 +574,18 @@ function showInstallHelp() {
     ? "На iPhone-у: Подели → Додај на почетни екран."
     : "Отвори мени прегледача и изабери Инсталирај апликацију.";
   installHelp.hidden = false;
+}
+
+function showInstallComplete() {
+  if (!installHelp || !installHelpText) {
+    return;
+  }
+  installHelpText.textContent = "Инсталација је готова.";
+  installHelp.hidden = false;
+  window.clearTimeout(installHelpTimer);
+  installHelpTimer = window.setTimeout(() => {
+    hideInstallHelp();
+  }, 5000);
 }
 
 async function installApp() {
@@ -600,12 +614,12 @@ window.addEventListener("beforeinstallprompt", (event) => {
 
 window.addEventListener("appinstalled", () => {
   deferredInstall = null;
-  hideInstallHelp();
   if (installBtn) {
     installBtn.hidden = true;
     installBtn.classList.add("is-hidden");
   }
   countInstall();
+  showInstallComplete();
 });
 
 fontDown.addEventListener("click", () => changeFont(-1));
