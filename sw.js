@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokajni-kanon-v21";
+const CACHE_NAME = "pokajni-kanon-v22";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -46,7 +46,8 @@ function isAppShell(request) {
     path.endsWith("/") ||
     path.endsWith(".html") ||
     path.endsWith(".js") ||
-    path.endsWith(".css")
+    path.endsWith(".css") ||
+    path.endsWith(".json")
   );
 }
 

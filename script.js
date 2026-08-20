@@ -258,9 +258,11 @@ function renderCover() {
         width="622"
         height="752"
       />
-      <h1 class="cover-title">Манастир Лешје</h1>
-      <div class="swipe-hint" aria-hidden="true">
-        <img class="swipe-finger" src="swipe-hint.png" alt="" width="96" height="96" />
+      <div class="cover-side">
+        <h1 class="cover-title">Манастир Лешје</h1>
+        <div class="swipe-hint" aria-hidden="true">
+          <img class="swipe-finger" src="swipe-hint.png" alt="" width="96" height="96" />
+        </div>
       </div>
     </figure>
   `;
@@ -635,9 +637,15 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-loadState();
-applyFontScale();
-renderPage();
-showChrome();
-showInstallButton();
-countView();
+if (window.POKAJNI_TEST) {
+  applyFontScale();
+  renderPage();
+  showInstallButton();
+} else {
+  loadState();
+  applyFontScale();
+  renderPage();
+  showChrome();
+  showInstallButton();
+  countView();
+}

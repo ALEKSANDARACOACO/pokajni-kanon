@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="sr-Cyrl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Тестови — Покајни канон</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      #test-report {
+        position: relative;
+        z-index: 40;
+        margin: 0;
+        padding: 1rem 1.2rem 2rem;
+        background: #111;
+        color: #e8d9a8;
+        font: 15px/1.45 Consolas, "Courier New", monospace;
+        max-height: 100dvh;
+        overflow: auto;
+      }
+      #test-report h1 {
+        font: 1.15rem/1.3 "Times New Roman", serif;
+        margin: 0 0 0.8rem;
+      }
+      #test-report .pass {
+        color: #8fd18f;
+      }
+      #test-report .fail {
+        color: #f07171;
+      }
+      #test-report .skip {
+        color: #c4b06a;
+      }
+      #app {
+        position: absolute;
+        left: -9999px;
+        width: 390px;
+        height: 700px;
+      }
+    </style>
+  </head>
+  <body>
+    <pre id="test-report">Покрећем тестове…</pre>
+
+    <div id="app" class="app">
+      <main id="reader" class="reader" tabindex="0">
+        <article id="page" class="page" aria-live="polite"></article>
+      </main>
+      <div id="stats" class="stats" hidden>
+        Прегледи: <span id="stat-views">—</span>
+        · Преузимања: <span id="stat-downloads">—</span>
+      </div>
+      <div class="chrome" id="chrome">
+        <button type="button" id="contents-btn">Садржај</button>
+        <button type="button" id="font-down" aria-label="Смањи слова">А−</button>
+        <span id="page-indicator" class="page-indicator"></span>
+        <button type="button" id="font-up" aria-label="Увећај слова">А+</button>
+      </div>
+    </div>
+    <button type="button" id="install-btn" class="install-btn" aria-label="Преузми апликацију">
+      <img src="icons/nika-192.png" alt="" width="28" height="28" />
+      <span>Преузми</span>
+    </button>
+    <div id="install-help" class="install-help" hidden>
+      <p id="install-help-text"></p>
+      <button type="button" id="install-help-close">Затвори</button>
+    </div>
+
+    <script>
+      window.POKAJNI_TEST = true;
+    </script>
+    <script src="izvor.js"></script>
+    <script src="script.js"></script>
+    <script src="test.js"></script>
+  </body>
+</html>
