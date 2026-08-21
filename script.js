@@ -3,8 +3,8 @@ const STORAGE_PAGE = "pokajni-page-index";
 const STORAGE_OWNER = "pokajni-vlasnik";
 const STORAGE_VIEWED = "pokajni-pregled-sesija";
 const COUNTER_NS = "aleksandaracoaco-pokajni-kanon";
-const COUNTER_VIEWS = "pregledi";
-const COUNTER_DOWNLOADS = "preuzimanja";
+const COUNTER_VIEWS = "pregledi2";
+const COUNTER_DOWNLOADS = "preuzimanja2";
 
 const FONT_MIN = 0.85;
 const FONT_MAX = 1.8;
